@@ -30,11 +30,12 @@ export const initPagination = ({pages, fromRow, toRow, totalRows}, createPage) =
         }
 
         // @todo: #2.4 — получить список видимых страниц и вывести их
-        const visiblePages = getPages(page, pageCount, 5);
-        pages.replaceChildren(...visiblePages.map(pageNumber => {
-            const el = pageTemplate.cloneNode(true);
-            return createPage(el, pageNumber, pageNumber === page);
-        }));
+const visiblePages = getPages(page, pageCount, 5);
+pages.replaceChildren(...visiblePages.map(pageNumber => {
+    const el = pageTemplate.cloneNode(true);
+    const button = createPage(el, pageNumber, pageNumber === page);
+    return button;
+}));
 
         // @todo: #2.5 — обновить статус пагинации
         const startRow = (page - 1) * rowsPerPage + 1;
