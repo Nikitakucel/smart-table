@@ -102,10 +102,6 @@
             </button>
             <div class="pagination-pages" data-name="pages" role="group" aria-label="Page navigation">
                 <!-- Page buttons will be generated dynamically -->
-                <label class="pagination-button" aria-label="Goto page 1">
-                    <input type="radio" name="page" value="1">
-                    <span>1</span>
-                </label>
             </div>
             <button type="submit" name="next" class="pagination-button" data-name="nextPage" aria-label="Next page">
                 <i class="icon right" aria-hidden="true"></i>
@@ -134,7 +130,7 @@
 
 <!-- Row template -->
 <template id="row">
-    <div class="table-row" role="row">
+    <div class="table-row" role="row" data-row>
         <div class="table-column" data-name="date" role="cell"></div>
         <div class="table-column" data-name="customer" role="cell"></div>
         <div class="table-column" data-name="seller" role="cell"></div>
