@@ -2,49 +2,69 @@ import {createComparison, defaultRules} from "../lib/compare.js";
 
 // @todo: #4.3 — настроить компаратор
 
-export function initFiltering(elements, indexes) {
-    // @todo: #4.1 — заполнить выпадающие списки опциями
+export function initFiltering(elements) {
+const updateIndexes = (elements, indexes) => {
     Object.keys(indexes).forEach((elementName) => {
-        // Очищаем select перед заполнением
-        elements[elementName].innerHTML = '';
-        
-        // Добавляем пустую опцию для возможности сброса
-        const emptyOption = document.createElement('option');
-        emptyOption.value = '';
-        emptyOption.textContent = 'Все';
-        elements[elementName].append(emptyOption);
-        
-        // Добавляем опции из индекса
-        Object.values(indexes[elementName]).forEach(name => {
-            const option = document.createElement('option');
-            option.value = name;
-            option.textContent = name;
-            elements[elementName].append(option);
-        });
+        elements[elementName].append(
+        ...Object.values(indexes[elementName]).map((name) => {
+        const el = document.createElement("option");
+        el.textContent = name;
+        el.value = name;
+        return el;
+        })
+    );
     });
-    
-    // @todo: #4.3 — настроить компаратор
-    const compare = createComparison(defaultRules);
+};
 
-    return (data, state, action) => {
-        // @todo: #4.2 — обработать очистку поля
-        if (action && action.name === 'clear') {
-            // Находим родительский элемент кнопки
-            const parent = action.closest('.filter-group');
-            if (parent) {
-                const input = parent.querySelector('input, select');
-                if (input) {
-                    input.value = '';
-                    // Обновляем state
-                    const field = action.dataset.field;
-                    if (field) {
-                        state[field] = '';
-                    }
-                }
-            }
+const applyFiltering = (query, state, action) => {
+    // код с обработкой очистки поля
+    if (action) {
+    const button = action.target || action;
+    if (button && button.name === "clear") {
+        const fieldName = button.getAttribute("data-field"); // "date" или "customer"
+        // ищем ближайший контейнер фильтра и внутри него input/select
+        let filterWrapper = button.parentElement;
+        // на всякий случай поднимемся до ближайшей колонки, если в filterWrapper не нашли
+        const input =
+        (filterWrapper && filterWrapper.querySelector && filterWrapper.querySelector("input, select")) ||
+        (button.closest && button.closest(".table-column") && button.closest(".table-column").querySelector("input, select"));
+        if (input) {
+          input.value = ""; // сбрасываем значение поля
         }
-
-        // @todo: #4.5 — отфильтровать данные используя компаратор
-        return data.filter(row => compare(row, state));
+        // синхронизируем state: сбрасываем значение в состоянии
+        if (fieldName && state && typeof state === "object") {
+        if (
+            state.filters && Object.prototype.hasOwnProperty.call(state.filters, fieldName)
+        ) {
+            state.filters[fieldName] = "";
+        } else {
+            state[fieldName] = "";
+        }
+        }
     }
+    }
+
+    // @todo: #4.5 — отфильтровать данные, используя компаратор
+    const filter = {};
+    Object.keys(elements).forEach((key) => {
+        if (elements[key]) {
+        if (
+            ["INPUT", "SELECT"].includes(elements[key].tagName) &&
+            elements[key].value
+        ) {
+          // ищем поля ввода в фильтре с непустыми данными
+          filter[`filter[${elements[key].name}]`] = elements[key].value; // чтобы сформировать в query вложенный объект фильтра
+        }
+    }
+    });
+
+    return Object.keys(filter).length
+    ? Object.assign({}, query, filter)
+      : query; // если в фильтре что-то добавилось, применим к запросу
+};
+
+return {
+    updateIndexes,
+    applyFiltering,
+};
 }
