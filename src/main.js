@@ -1,3 +1,4 @@
+console.log('MAIN.JS ЗАГРУЖЕН');
 import "./fonts/ys-display/fonts.css";
 import "./style.css";
 
