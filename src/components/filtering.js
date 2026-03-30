@@ -1,44 +1,48 @@
-import { createComparison, defaultRules } from "../lib/compare.js";
+export function initFiltering(elements) {
+    const updateIndexes = (elements, indexes) => {
+        Object.keys(indexes).forEach((elementName) => {
+            elements[elementName].innerHTML = '';
+            const emptyOption = document.createElement('option');
+            emptyOption.value = '';
+            emptyOption.textContent = 'Все';
+            elements[elementName].append(emptyOption);
 
-export function initFiltering(elements, indexes) {
-    // 4.1 — заполнить выпадающие списки опциями
-    Object.keys(indexes).forEach((elementName) => {
-        // Очищаем select
-        elements[elementName].innerHTML = "";
-        // Пустая опция для сброса
-        const emptyOption = document.createElement("option");
-        emptyOption.value = "";
-        emptyOption.textContent = "Все";
-        elements[elementName].append(emptyOption);
-        // Опции из индекса
-        Object.values(indexes[elementName]).forEach((name) => {
-            const option = document.createElement("option");
-            option.value = name;
-            option.textContent = name;
-            elements[elementName].append(option);
+            Object.values(indexes[elementName]).forEach(name => {
+                const option = document.createElement('option');
+                option.value = name;
+                option.textContent = name;
+                elements[elementName].append(option);
+            });
         });
-    });
+    };
 
-    // 4.3 — настроить компаратор
-    const compare = createComparison(defaultRules);
-
-    return (data, state, action) => {
-        // 4.2 — обработать очистку поля (опционально)
-        if (action && action.name === "clear") {
-            const parent = action.closest(".filter-group");
+    const applyFiltering = (query, state, action) => {
+        // Обработка кнопки очистки
+        if (action && action.name === 'clear') {
+            const parent = action.closest('.filter-group');
             if (parent) {
-                const input = parent.querySelector("input, select");
+                const input = parent.querySelector('input, select');
                 if (input) {
-                    input.value = "";
+                    input.value = '';
                     const field = action.dataset.field;
                     if (field) {
-                        state[field] = "";
+                        state[field] = '';
                     }
                 }
             }
         }
 
-        // 4.5 — отфильтровать данные
-        return data.filter((row) => compare(row, state));
+        // Сбор параметров фильтрации из полей ввода
+        const filter = {};
+        Object.keys(elements).forEach(key => {
+            const el = elements[key];
+            if (el && (el.tagName === 'INPUT' || el.tagName === 'SELECT') && el.value) {
+                filter[`filter[${el.name}]`] = el.value;
+            }
+        });
+
+        return Object.keys(filter).length ? { ...query, ...filter } : query;
     };
+
+    return { updateIndexes, applyFiltering };
 }
