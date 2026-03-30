@@ -1,5 +1,3 @@
-import { data as sourceData } from './dataset_1.js';
-
 const BASE_URL = 'https://webinars.webdev.education-services.ru/sp7-api';
 
 export function initData() {
