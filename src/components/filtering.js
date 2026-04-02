@@ -19,15 +19,12 @@ export function initFiltering(elements) {
     const applyFiltering = (query, state, action) => {
         // Обработка кнопки очистки
         if (action && action.name === 'clear') {
-            const parent = action.closest('.filter-group');
-            if (parent) {
-                const input = parent.querySelector('input, select');
-                if (input) {
-                    input.value = '';
-                    const field = action.dataset.field;
-                    if (field) {
-                        state[field] = '';
-                    }
+            const input = action.parentElement?.querySelector('input, select');
+            if (input) {
+                input.value = '';
+                const field = action.dataset.field;
+                if (field) {
+                    state[field] = '';
                 }
             }
         }
